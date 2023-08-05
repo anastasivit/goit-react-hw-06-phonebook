@@ -53,8 +53,9 @@ const App = () => {
     dispatch(deleteContact(contactId));
   };
 
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(filter.toLowerCase())
+  const filteredContacts = contacts.filter(
+    contact =>
+      contact.name && contact.name.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
