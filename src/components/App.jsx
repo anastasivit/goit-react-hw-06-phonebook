@@ -1,27 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  addContact,
+  deleteContact,
+  updateFilter,
+} from '../redux/contactsSlice';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
 import styles from './App.module.css';
 
 const App = () => {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
+  const contacts = useSelector(state => state.contacts.contacts);
+  const filter = useSelector(state => state.contacts.filter);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const savedContacts = localStorage.getItem('contacts');
 
     if (savedContacts) {
-      setContacts(JSON.parse(savedContacts));
+      dispatch(addContact(JSON.parse(savedContacts)));
     }
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
   }, [contacts]);
 
   const handleFilterChange = filter => {
-    setFilter(filter);
+    dispatch(updateFilter(filter));
   };
 
   const handleAddContact = (name, number) => {
@@ -38,14 +45,12 @@ const App = () => {
       number,
     };
 
-    setContacts(prevContacts => [...prevContacts, newContact]);
-    setFilter('');
+    dispatch(addContact(newContact));
+    dispatch(updateFilter(''));
   };
 
   const handleDeleteContact = contactId => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== contactId)
-    );
+    dispatch(deleteContact(contactId));
   };
 
   const filteredContacts = contacts.filter(contact =>
@@ -55,7 +60,7 @@ const App = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.heading}>Phonebook</h1>
-      <ContactForm contacts={contacts} onAddContact={handleAddContact} />
+      <ContactForm onAddContact={handleAddContact} />
       <h2 className={styles.heading}>Contacts</h2>
       <Filter value={filter} onChange={handleFilterChange} />
       <ContactList
